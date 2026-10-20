@@ -2,7 +2,7 @@ namespace momentify_backend.Models;
 
 public class User
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; } = null!;
 
@@ -16,4 +16,3 @@ public class User
 
     public ICollection<Site> Sites { get; set; } = new List<Site>();
 }
-

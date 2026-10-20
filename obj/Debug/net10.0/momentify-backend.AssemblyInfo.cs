@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("momentify-backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+551e327108d6beaee2b29d132ff82747d8845fbb")]
 [assembly: System.Reflection.AssemblyProductAttribute("momentify-backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("momentify-backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

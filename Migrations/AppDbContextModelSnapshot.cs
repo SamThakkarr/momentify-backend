@@ -22,11 +22,44 @@ namespace momentify_backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("momentify_backend.Models.OurStoryData", b =>
+                {
+                    b.Property<int>("SiteId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FinalMessage")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("HeroSubtitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MessageTitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SiteId1")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SiteId");
+
+                    b.HasIndex("SiteId1");
+
+                    b.ToTable("OurStoryData");
+                });
+
             modelBuilder.Entity("momentify_backend.Models.Site", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -41,11 +74,11 @@ namespace momentify_backend.Migrations
                     b.Property<DateTime?>("PublishedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("TemplateId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -58,9 +91,11 @@ namespace momentify_backend.Migrations
 
             modelBuilder.Entity("momentify_backend.Models.Template", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("IconId")
                         .IsRequired()
@@ -77,9 +112,11 @@ namespace momentify_backend.Migrations
 
             modelBuilder.Entity("momentify_backend.Models.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -104,28 +141,36 @@ namespace momentify_backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Site", b =>
+            modelBuilder.Entity("momentify_backend.Models.OurStoryData", b =>
                 {
-                    b.HasOne("momentify_backend.Models.Template", "Template")
-                        .WithMany("Sites")
-                        .HasForeignKey("TemplateId")
+                    b.HasOne("momentify_backend.Models.Site", null)
+                        .WithOne()
+                        .HasForeignKey("momentify_backend.Models.OurStoryData", "SiteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("momentify_backend.Models.User", "User")
+                    b.HasOne("momentify_backend.Models.Site", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("momentify_backend.Models.Site", b =>
+                {
+                    b.HasOne("momentify_backend.Models.Template", null)
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("momentify_backend.Models.User", null)
                         .WithMany("Sites")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Template");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("momentify_backend.Models.Template", b =>
-                {
-                    b.Navigation("Sites");
                 });
 
             modelBuilder.Entity("momentify_backend.Models.User", b =>
