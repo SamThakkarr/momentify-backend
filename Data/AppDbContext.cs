@@ -18,9 +18,19 @@ public class AppDbContext : DbContext
 
     public DbSet<OurStoryData> OurStoryData => Set<OurStoryData>();
 
+    public DbSet<MemoriesData> MemoriesData => Set<MemoriesData>();
+
+    public DbSet<Memory> Memories => Set<Memory>();
+
+    public DbSet<MemoryPhoto> MemoryPhotos => Set<MemoryPhoto>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<User>()
+            .HasIndex(x => x.Email)
+            .IsUnique();
 
         // User → Sites
         modelBuilder.Entity<Site>()
@@ -44,6 +54,28 @@ public class AppDbContext : DbContext
             .HasOne<Site>()
             .WithOne()
             .HasForeignKey<OurStoryData>(x => x.SiteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Site → MemoriesData
+        modelBuilder.Entity<MemoriesData>()
+            .HasKey(x => x.SiteId);
+
+        modelBuilder.Entity<MemoriesData>()
+            .HasOne<Site>()
+            .WithOne()
+            .HasForeignKey<MemoriesData>(x => x.SiteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Memory>()
+            .HasOne<MemoriesData>()
+            .WithMany(x => x.Memories)
+            .HasForeignKey(x => x.MemoriesDataSiteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MemoryPhoto>()
+            .HasOne<Memory>()
+            .WithMany(x => x.Photos)
+            .HasForeignKey(x => x.MemoryId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

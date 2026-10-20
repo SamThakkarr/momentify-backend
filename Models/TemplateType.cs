@@ -2,8 +2,8 @@ namespace momentify_backend.Models;
 
 public enum TemplateType
 {
-    OurStory,
-    Memories,
-    Forever
+    OurStory = 1,
+    Memories = 2,
+    Forever = 3
 }
 

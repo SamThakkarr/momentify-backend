@@ -38,11 +38,12 @@ public class TemplateService : ITemplateService
             .ToList();
     }
 
-    private static ITemplate? GetTemplateDefinition(TemplateType templateType)
+    private static ITemplateDefinition? GetTemplateDefinition(TemplateType templateType)
     {
         return templateType switch
         {
-            TemplateType.OurStory => new OurStoryData(),
+            TemplateType.OurStory => new OurStoryTemplate(),
+            TemplateType.Memories => new MemoriesTemplate(),
             _ => null
         };
     }

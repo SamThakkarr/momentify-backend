@@ -1,12 +1,10 @@
-using momentify_backend.Models;
+using momentify_backend.Data;
 
 namespace momentify_backend.Interfaces;
 
 public interface ITemplate
 {
-    TemplateType Type { get; }
+    int SiteId { get; set; }
 
-    string Name { get; }
-
-    Dictionary<string, TemplateInputType> InputRequired { get; }
+    Task SaveAsync(AppDbContext context);
 }

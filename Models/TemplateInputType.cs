@@ -6,5 +6,7 @@ public enum TemplateInputType
     TextArea,
     Photo,
     PhotoGallery,
-    Date
+    Date,
+    Object,
+    ObjectCollection
 }

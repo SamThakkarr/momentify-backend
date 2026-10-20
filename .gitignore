@@ -1,20 +1,97 @@
-# Build outputs
+# ==========================================
+# .NET / C#
+# ==========================================
+
+# Build output
 bin/
 obj/
 
-# IDE / tooling
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Visual Studio / Rider
 .vs/
 .idea/
-.ai/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
-*.cache
+*.DotSettings.user
 
+# Rider project files
+*.sln.iml
+
+# ==========================================
+# .NET tooling
+# ==========================================
+
+# Test results
+TestResults/
+*.trx
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# ==========================================
+# NuGet
+# ==========================================
+
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# ==========================================
+# ASP.NET / Development
+# ==========================================
+
+# Local development configuration
+appsettings.Local.json
+
+# HTTPS development certificates
+*.pfx
+
+# ==========================================
+# Logs
+# ==========================================
+
+*.log
+logs/
+
+# ==========================================
 # OS files
+# ==========================================
+
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# ==========================================
+# Environment / Secrets
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+# Local secrets
+secrets.json
+
+# ==========================================
+# Generated / Temporary files
+# ==========================================
+
+*.tmp
+*.temp
+*.cache
+
+# ==========================================
+# Database / Local storage
+# ==========================================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# Local uploaded files
+uploads/
