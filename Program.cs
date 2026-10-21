@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using momentify_backend.Commands.CreateSite;
 using momentify_backend.Commands.CreateUser;
+using momentify_backend.Commands.LoginUser;
 using momentify_backend.Commands.PublishSite;
 using momentify_backend.Data;
 using momentify_backend.Interfaces;
@@ -31,6 +32,7 @@ builder.Services.AddScoped<ITemplateFactory, TemplateFactory>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<ISiteReader, SiteReader>();
+builder.Services.AddScoped<ISiteDataReader, SiteDataReader>();
 builder.Services.AddScoped<IUserReader, UserReader>();
 builder.Services.AddScoped<ITemplateReader, TemplateReader>();
 
@@ -61,6 +63,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     ICreateUserCommandHandler,
     CreateUserCommandHandler>();
+
+builder.Services.AddScoped<
+    ILoginUserCommandHandler,
+    LoginUserCommandHandler>();
 
 builder.Services.AddScoped<
     IPublishSiteCommandHandler,

@@ -15,6 +15,14 @@ public class SiteController : ControllerBase
         _siteService = siteService;
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CreateSite(CreateSiteRequest request)
+    {
+        var result = await _siteService.CreateSiteAsync(request);
+
+        return Ok(result);
+    }
+
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetUserSites(int userId)
     {
@@ -23,21 +31,22 @@ public class SiteController : ControllerBase
         return Ok(sites);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateSite(CreateSiteRequest request)
+    [HttpGet("s/{publicSlug}")]
+    public async Task<IActionResult> GetPublicSite(string publicSlug)
     {
-        try
-        {
-            var response = await _siteService.CreateSiteAsync(request);
+        var site = await _siteService.GetSiteBySlugAsync(publicSlug);
 
-            return Ok(response);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
-        }
+        if (site == null)
+            return NotFound();
+
+        return Ok(site);
+    }
+
+    [HttpPost("{siteId}/publish")]
+    public async Task<IActionResult> PublishSite(int siteId)
+    {
+        await _siteService.PublishSiteAsync(siteId);
+
+        return Ok();
     }
 }

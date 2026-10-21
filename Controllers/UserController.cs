@@ -45,4 +45,15 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginUserRequest request)
+    {
+        var result = await _userService.LoginUserAsync(request);
+
+        if (result == null)
+            return Unauthorized("Invalid email or password.");
+
+        return Ok(result);
+    }
 }

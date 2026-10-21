@@ -13,18 +13,18 @@ public interface IGetSiteBySlugQueryHandler
 
 public class GetSiteBySlugQueryHandler : IGetSiteBySlugQueryHandler
 {
-    private readonly AppDbContext _context;
     private readonly ISiteReader _siteReader;
     private readonly ITemplateReader _templateReader;
+    private readonly ISiteDataReader _siteDataReader;
 
     public GetSiteBySlugQueryHandler(
-        AppDbContext context,
         ISiteReader siteReader,
-        ITemplateReader templateReader)
+        ITemplateReader templateReader,
+        ISiteDataReader siteDataReader)
     {
-        _context = context;
         _siteReader = siteReader;
         _templateReader = templateReader;
+        _siteDataReader = siteDataReader;
     }
 
     public async Task<UserSiteDto?> HandleAsync(string publicSlug)
@@ -32,60 +32,25 @@ public class GetSiteBySlugQueryHandler : IGetSiteBySlugQueryHandler
         var site = await _siteReader.GetBySlugAsync(publicSlug);
 
         if (site == null || !site.IsPublished)
-        {
             return null;
-        }
 
         var template = await _templateReader.GetByIdAsync(site.TemplateId);
-
         if (template == null)
-        {
             return null;
-        }
 
-        object data;
+        var templateType = (TemplateType)site.TemplateId;
 
-        switch ((TemplateType)site.TemplateId)
-        {
-            case TemplateType.OurStory:
-            {
-                var ourStoryData = await _context.OurStoryData
-                    .FirstOrDefaultAsync(x => x.SiteId == site.Id);
+        var data = await _siteDataReader.GetDataAsync(
+            site.Id,
+            templateType);
 
-                if (ourStoryData == null)
-                {
-                    return null;
-                }
-
-                data = ourStoryData;
-                break;
-            }
-
-            case TemplateType.Memories:
-            {
-                var memoriesData = await _context.MemoriesData
-                    .Include(x => x.Memories)
-                        .ThenInclude(x => x.Photos)
-                    .FirstOrDefaultAsync(x => x.SiteId == site.Id);
-
-                if (memoriesData == null)
-                {
-                    return null;
-                }
-
-                data = memoriesData;
-                break;
-            }
-
-            default:
-                throw new InvalidOperationException(
-                    $"Template data handling is not implemented for template {site.TemplateId}.");
-        }
+        if (data == null)
+            return null;
 
         return new UserSiteDto
         {
             SiteId = site.Id,
-            TemplateType = (TemplateType)site.TemplateId,
+            TemplateType = templateType,
             TemplateName = template.Name,
             PublicSlug = site.PublicSlug,
             IsPublished = site.IsPublished,
