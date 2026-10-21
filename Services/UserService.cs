@@ -1,81 +1,38 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using momentify_backend.Data;
+using momentify_backend.Commands.CreateUser;
 using momentify_backend.DTOs;
-using momentify_backend.Interfaces;
-using momentify_backend.Models;
+using momentify_backend.Queries.GetUser;
 
 namespace momentify_backend.Services;
 
+public interface IUserService
+{
+    Task<CreateUserResponse> SaveUserAsync(CreateUserRequest request);
+    Task<UserDto?> GetUserAsync(int userId);
+}
+
 public class UserService : IUserService
 {
-    private readonly AppDbContext _context;
-    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly ICreateUserCommandHandler _createUserHandler;
+    private readonly IGetUserQueryHandler _getUserHandler;
 
     public UserService(
-        AppDbContext context,
-        IPasswordHasher<User> passwordHasher)
+        ICreateUserCommandHandler createUserHandler,
+        IGetUserQueryHandler getUserHandler)
     {
-        _context = context;
-        _passwordHasher = passwordHasher;
+        _createUserHandler = createUserHandler;
+        _getUserHandler = getUserHandler;
     }
 
-    public async Task<CreateUserResponse> SaveUserAsync(CreateUserRequest request)
+    public async Task<CreateUserResponse> SaveUserAsync(
+        CreateUserRequest request)
     {
-        var emailExists = await _context.Users
-            .AnyAsync(x => x.Email == request.Email);
-
-        if (emailExists)
-        {
-            throw new InvalidOperationException(
-                "A user with this email already exists.");
-        }
-
-        var user = new User
-        {
-            Name = request.Name,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        user.SecurityKey = _passwordHasher.HashPassword(
-            user,
-            request.SecurityKey);
-
-        _context.Users.Add(user);
-
-        await _context.SaveChangesAsync();
-
-        return new CreateUserResponse
-        {
-            UserId = user.Id,
-            CreatedAt = user.CreatedAt
-        };
+        return await _createUserHandler.HandleAsync(request);
     }
 
-    public async Task<User?> UpdateUserAsync(User user)
+    public async Task<UserDto?> GetUserAsync(int userId)
     {
-        _context.Users.Update(user);
-
-        await _context.SaveChangesAsync();
-
-        return user;
-    }
-
-    public async Task<bool> DeleteUserAsync(int userId)
-    {
-        var user = await _context.Users.FindAsync(userId);
-
-        if (user == null)
-        {
-            return false;
-        }
-
-        _context.Users.Remove(user);
-
-        await _context.SaveChangesAsync();
-
-        return true;
+        return await _getUserHandler.HandleAsync(userId);
     }
 }

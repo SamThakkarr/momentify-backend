@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using momentify_backend.DTOs;
-using momentify_backend.Interfaces;
+using momentify_backend.Services;
 
 namespace momentify_backend.Controllers;
 
@@ -18,7 +18,7 @@ public class SiteController : ControllerBase
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetUserSites(int userId)
     {
-        var sites = await _siteService.GetUserSitesAsync(userId);
+        var sites = await _siteService.GetSitesByUserIdAsync(userId);
 
         return Ok(sites);
     }

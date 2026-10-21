@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using momentify_backend.Interfaces;
+using momentify_backend.Services;
 
 namespace momentify_backend.Controllers;
 
@@ -22,4 +22,3 @@ public class TemplateController : ControllerBase
         return Ok(templates);
     }
 }
-
