@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using momentify_backend.DTOs;
 using momentify_backend.Services;
@@ -6,6 +8,7 @@ namespace momentify_backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class SiteController : ControllerBase
 {
     private readonly ISiteService _siteService;
@@ -15,38 +18,97 @@ public class SiteController : ControllerBase
         _siteService = siteService;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateSite(CreateSiteRequest request)
+    [HttpGet("user")]
+    public async Task<IActionResult> GetUserSites()
     {
-        var result = await _siteService.CreateSiteAsync(request);
+        var userIdClaim =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return Ok(result);
-    }
+        if (userIdClaim == null ||
+            !int.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized();
+        }
 
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetUserSites(int userId)
-    {
-        var sites = await _siteService.GetSitesByUserIdAsync(userId);
+        var sites =
+            await _siteService.GetSitesByUserIdAsync(userId);
 
         return Ok(sites);
     }
 
-    [HttpGet("s/{publicSlug}")]
-    public async Task<IActionResult> GetPublicSite(string publicSlug)
+    [HttpPost]
+    public async Task<IActionResult> CreateSite(
+        CreateSiteRequest request)
     {
-        var site = await _siteService.GetSiteBySlugAsync(publicSlug);
+        var userIdClaim =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (site == null)
-            return NotFound();
+        if (userIdClaim == null ||
+            !int.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized();
+        }
 
-        return Ok(site);
+        var response =
+            await _siteService.CreateSiteAsync(
+                request,
+                userId);
+
+        return Ok(response);
+    }
+
+    [HttpPut("{siteId}")]
+    public async Task<IActionResult> UpdateSite(
+        int siteId,
+        CreateSiteRequest request)
+    {
+        var userIdClaim =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null ||
+            !int.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        await _siteService.UpdateSiteAsync(
+            siteId,
+            userId,
+            request);
+
+        return Ok();
     }
 
     [HttpPost("{siteId}/publish")]
     public async Task<IActionResult> PublishSite(int siteId)
     {
-        await _siteService.PublishSiteAsync(siteId);
+        var userIdClaim =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null ||
+            !int.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        await _siteService.PublishSiteAsync(
+            siteId,
+            userId);
 
         return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("s/{publicSlug}")]
+    public async Task<IActionResult> GetPublicSite(
+        string publicSlug)
+    {
+        var site =
+            await _siteService.GetSiteBySlugAsync(publicSlug);
+
+        if (site == null)
+            return NotFound();
+
+        return Ok(site);
     }
 }

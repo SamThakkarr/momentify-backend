@@ -11,7 +11,9 @@ namespace momentify_backend.Commands.CreateSite;
 
 public interface ICreateSiteCommandHandler
 {
-    Task<CreateSiteResponse> HandleAsync(CreateSiteRequest request);
+    Task<CreateSiteResponse> HandleAsync(
+        CreateSiteRequest request,
+        int userId);
 }
 
 public class CreateSiteCommandHandler : ICreateSiteCommandHandler
@@ -21,25 +23,29 @@ public class CreateSiteCommandHandler : ICreateSiteCommandHandler
     private readonly ITemplateReader _templateReader;
     private readonly ISiteWriter _siteWriter;
     private readonly ITemplateFactory _templateFactory;
+    private readonly ITemplateValidator _templateValidator;
 
     public CreateSiteCommandHandler(
         AppDbContext context,
         IUserReader userReader,
         ITemplateReader templateReader,
         ISiteWriter siteWriter,
-        ITemplateFactory templateFactory)
+        ITemplateFactory templateFactory,
+        ITemplateValidator templateValidator)
     {
         _context = context;
         _userReader = userReader;
         _templateReader = templateReader;
         _siteWriter = siteWriter;
         _templateFactory = templateFactory;
+        _templateValidator = templateValidator;
     }
 
     public async Task<CreateSiteResponse> HandleAsync(
-        CreateSiteRequest request)
+        CreateSiteRequest request,
+        int userId)
     {
-        var user = await _userReader.GetByIdAsync(request.UserId);
+        var user = await _userReader.GetByIdAsync(userId);
 
         if (user == null)
             throw new InvalidOperationException("User not found.");
@@ -50,11 +56,21 @@ public class CreateSiteCommandHandler : ICreateSiteCommandHandler
         if (template == null)
             throw new InvalidOperationException("Template not found.");
 
+        var jsonData = JsonSerializer.SerializeToElement(request.Data);
+
+        _templateValidator.Validate(
+            request.TemplateType,
+            jsonData);
+
+        var templateData = _templateFactory.Create(
+            request.TemplateType,
+            jsonData);
+
         var slug = $"site-{Guid.NewGuid():N}";
 
         var site = new Site
         {
-            UserId = request.UserId,
+            UserId = userId,
             TemplateId = (int)request.TemplateType,
             PublicSlug = slug,
             IsPublished = false,
@@ -70,29 +86,8 @@ public class CreateSiteCommandHandler : ICreateSiteCommandHandler
 
             await _context.SaveChangesAsync();
 
-            var jsonData = JsonSerializer.SerializeToElement(
-                request.Data);
-
-            var templateData = _templateFactory.Create(
-                request.TemplateType,
-                jsonData);
-
-            switch (templateData)
-            {
-                case OurStoryData ourStoryData:
-                    ourStoryData.SiteId = site.Id;
-                    await ourStoryData.SaveAsync(_context);
-                    break;
-
-                case MemoriesData memoriesData:
-                    memoriesData.SiteId = site.Id;
-                    await memoriesData.SaveAsync(_context);
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        $"Template data handling is not implemented for {request.TemplateType}.");
-            }
+            templateData.SiteId = site.Id;
+            await templateData.SaveAsync(_context);
 
             await transaction.CommitAsync();
 

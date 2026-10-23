@@ -1,11 +1,17 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using momentify_backend.Commands.CreateSite;
 using momentify_backend.Commands.CreateUser;
 using momentify_backend.Commands.LoginUser;
 using momentify_backend.Commands.PublishSite;
+using momentify_backend.Commands.UpdateSite;
 using momentify_backend.Data;
 using momentify_backend.Interfaces;
+using momentify_backend.Middleware;
 using momentify_backend.Models;
 using momentify_backend.Queries.GetSiteBySlug;
 using momentify_backend.Queries.GetTemplates;
@@ -18,7 +24,43 @@ using momentify_backend.Writers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Enter your JWT token."
+    });
+
+    options.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
+});
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -39,6 +81,9 @@ builder.Services.AddScoped<ITemplateReader, TemplateReader>();
 builder.Services.AddScoped<ISiteWriter, SiteWriter>();
 builder.Services.AddScoped<IUserWriter, UserWriter>();
 builder.Services.AddScoped<ITemplateWriter, TemplateWriter>();
+builder.Services.AddScoped<
+    ITemplateValidator,
+    TemplateValidator>();
 
 builder.Services.AddScoped<
     IGetUserSitesQueryHandler,
@@ -69,6 +114,10 @@ builder.Services.AddScoped<
     LoginUserCommandHandler>();
 
 builder.Services.AddScoped<
+    IUpdateSiteCommandHandler,
+    UpdateSiteCommandHandler>();
+
+builder.Services.AddScoped<
     IPublishSiteCommandHandler,
     PublishSiteCommandHandler>();
 
@@ -82,6 +131,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Map API controllers
 app.MapControllers();

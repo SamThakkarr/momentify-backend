@@ -6,7 +6,7 @@ namespace momentify_backend.Commands.PublishSite;
 
 public interface IPublishSiteCommandHandler
 {
-    Task HandleAsync(int siteId);
+    Task HandleAsync(int siteId, int userId);
 }
 
 public class PublishSiteCommandHandler : IPublishSiteCommandHandler
@@ -25,12 +25,16 @@ public class PublishSiteCommandHandler : IPublishSiteCommandHandler
         _siteWriter = siteWriter;
     }
 
-    public async Task HandleAsync(int siteId)
+    public async Task HandleAsync(int siteId, int userId)
     {
         var site = await _siteReader.GetByIdAsync(siteId);
 
         if (site == null)
-            throw new InvalidOperationException("Site not found.");
+            throw new KeyNotFoundException("Site not found.");
+
+        if (site.UserId != userId)
+            throw new UnauthorizedAccessException(
+                "You do not have permission to publish this site.");
 
         site.IsPublished = true;
         site.PublishedAt = DateTime.UtcNow;

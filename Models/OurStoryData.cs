@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using momentify_backend.Data;
 using momentify_backend.Interfaces;
 
@@ -12,10 +13,16 @@ public class OurStoryData : ITemplate
     public string Message { get; set; } = null!;
     public string FinalMessage { get; set; } = null!;
 
-
     public async Task SaveAsync(AppDbContext context)
     {
-        context.OurStoryData.Add(this);
+        var exists = await context.OurStoryData
+            .AnyAsync(x => x.SiteId == SiteId);
+
+        if (exists)
+            context.OurStoryData.Update(this);
+        else
+            context.OurStoryData.Add(this);
+
         await context.SaveChangesAsync();
     }
 }

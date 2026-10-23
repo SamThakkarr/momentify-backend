@@ -1,0 +1,91 @@
+using System.Text.Json;
+using momentify_backend.Data;
+using momentify_backend.DTOs;
+using momentify_backend.Interfaces;
+using momentify_backend.Readers;
+
+namespace momentify_backend.Commands.UpdateSite;
+
+public interface IUpdateSiteCommandHandler
+{
+    Task HandleAsync(
+        int siteId,
+        int userId,
+        CreateSiteRequest request);
+}
+
+public class UpdateSiteCommandHandler : IUpdateSiteCommandHandler
+{
+    private readonly AppDbContext _context;
+    private readonly ISiteReader _siteReader;
+    private readonly ITemplateReader _templateReader;
+    private readonly ITemplateFactory _templateFactory;
+    private readonly ITemplateValidator _templateValidator;
+
+    public UpdateSiteCommandHandler(
+        AppDbContext context,
+        ISiteReader siteReader,
+        ITemplateReader templateReader,
+        ITemplateFactory templateFactory,
+        ITemplateValidator templateValidator)
+    {
+        _context = context;
+        _siteReader = siteReader;
+        _templateReader = templateReader;
+        _templateFactory = templateFactory;
+        _templateValidator = templateValidator;
+    }
+
+    public async Task HandleAsync(
+        int siteId,
+        int userId,
+        CreateSiteRequest request)
+    {
+        var site = await _siteReader.GetByIdAsync(siteId);
+
+        if (site == null)
+            throw new KeyNotFoundException("Site not found.");
+
+        if (site.UserId != userId)
+            throw new UnauthorizedAccessException(
+                "You do not have permission to update this site.");
+
+        var template = await _templateReader.GetByIdAsync(
+            (int)request.TemplateType);
+
+        if (template == null)
+            throw new InvalidOperationException(
+                "Template not found.");
+
+        if (site.TemplateId != (int)request.TemplateType)
+            throw new InvalidOperationException(
+                "The template type cannot be changed.");
+
+        var jsonData = JsonSerializer.SerializeToElement(request.Data);
+
+        _templateValidator.Validate(
+            request.TemplateType,
+            jsonData);
+
+        var templateData = _templateFactory.Create(
+            request.TemplateType,
+            jsonData);
+
+        templateData.SiteId = siteId;
+
+        await using var transaction =
+            await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            await templateData.SaveAsync(_context);
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+}
