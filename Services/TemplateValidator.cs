@@ -44,6 +44,9 @@ public class TemplateValidator : ITemplateValidator
                 property,
                 input.Value);
         }
+
+        if (templateType == TemplateType.Memories)
+            ValidateMemoryPhotoIds(data);
     }
 
     private static void ValidateInput(
@@ -128,11 +131,44 @@ public class TemplateValidator : ITemplateValidator
         string propertyName,
         JsonElement property)
     {
-        if (property.ValueKind != JsonValueKind.String ||
-            string.IsNullOrWhiteSpace(property.GetString()))
+        if (property.ValueKind != JsonValueKind.Number ||
+            !property.TryGetInt32(out var photoId) || photoId <= 0)
         {
             throw new ArgumentException(
-                $"Field '{propertyName}' must contain a valid image URL.");
+                $"Field '{propertyName}' must contain a valid photo ID.");
+        }
+    }
+
+    private static void ValidateMemoryPhotoIds(JsonElement data)
+    {
+        var memories = data.GetProperty("memories");
+        var memoryIndex = 0;
+        foreach (var memory in memories.EnumerateArray())
+        {
+            if (memory.ValueKind != JsonValueKind.Object ||
+                !memory.TryGetProperty("photos", out var photos) ||
+                photos.ValueKind != JsonValueKind.Array)
+            {
+                throw new ArgumentException(
+                    $"Memory at index {memoryIndex} must contain a photos array.");
+            }
+
+            var photoIndex = 0;
+            foreach (var photo in photos.EnumerateArray())
+            {
+                if (photo.ValueKind != JsonValueKind.Object ||
+                    !photo.TryGetProperty("photoId", out var photoId) ||
+                    photoId.ValueKind != JsonValueKind.Number ||
+                    !photoId.TryGetInt32(out var id) || id <= 0)
+                {
+                    throw new ArgumentException(
+                        $"Photo at index {photoIndex} in memory {memoryIndex} must contain a valid photoId.");
+                }
+
+                photoIndex++;
+            }
+
+            memoryIndex++;
         }
     }
 }

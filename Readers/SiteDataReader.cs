@@ -26,12 +26,15 @@ public class SiteDataReader : ISiteDataReader
         {
             TemplateType.OurStory =>
                 await _context.OurStoryData
+                    .Include(x => x.CoverPhoto)
+                    .Include(x => x.MemoryPhoto)
                     .FirstOrDefaultAsync(x => x.SiteId == siteId),
 
             TemplateType.Memories =>
                 await _context.MemoriesData
                     .Include(x => x.Memories)
-                    .ThenInclude(x => x.Photos)
+                    .ThenInclude(x => x.Photos.OrderBy(photo => photo.Photo.DisplayOrder))
+                    .ThenInclude(x => x.Photo)
                     .FirstOrDefaultAsync(x => x.SiteId == siteId),
 
             _ => throw new InvalidOperationException(

@@ -7,7 +7,10 @@ namespace momentify_backend.Models;
 public class OurStoryData : ITemplate
 {
     public int SiteId { get; set; }
-
+    public int? CoverPhotoId { get; set; }
+    public int? MemoryPhotoId { get; set; }
+    public Photo? CoverPhoto { get; set; }
+    public Photo? MemoryPhoto { get; set; }
     public string HeroSubtitle { get; set; } = null!;
     public string MessageTitle { get; set; } = null!;
     public string Message { get; set; } = null!;

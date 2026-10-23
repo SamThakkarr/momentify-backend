@@ -24,6 +24,8 @@ public class AppDbContext : DbContext
 
     public DbSet<MemoryPhoto> MemoryPhotos => Set<MemoryPhoto>();
 
+    public DbSet<Photo> Photos => Set<Photo>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -77,5 +79,28 @@ public class AppDbContext : DbContext
             .WithMany(x => x.Photos)
             .HasForeignKey(x => x.MemoryId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MemoryPhoto>()
+            .HasOne(x => x.Photo)
+            .WithMany()
+            .HasForeignKey(x => x.PhotoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Photo>()
+            .ToTable(table => table.HasCheckConstraint(
+                "CK_Photos_DisplayOrder",
+                "\"DisplayOrder\" = -1 OR \"DisplayOrder\" >= 1"));
+
+        modelBuilder.Entity<OurStoryData>()
+            .HasOne(x => x.CoverPhoto)
+            .WithMany()
+            .HasForeignKey(x => x.CoverPhotoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<OurStoryData>()
+            .HasOne(x => x.MemoryPhoto)
+            .WithMany()
+            .HasForeignKey(x => x.MemoryPhotoId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

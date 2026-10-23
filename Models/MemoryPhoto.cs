@@ -6,8 +6,8 @@ public class MemoryPhoto
 
     public int MemoryId { get; set; }
 
-    public string ImageUrl { get; set; } = null!;
+    public int PhotoId { get; set; }
 
-    public int DisplayOrder { get; set; }
+    public Photo Photo { get; set; } = null!;
 }
 

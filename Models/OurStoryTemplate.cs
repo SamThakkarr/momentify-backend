@@ -11,6 +11,8 @@ public class OurStoryTemplate : ITemplateDefinition
     public Dictionary<string, TemplateInputType> InputRequired => new()
     {
         { "heroSubtitle", TemplateInputType.Text },
+        { "coverPhotoId", TemplateInputType.Photo },
+        { "memoryPhotoId", TemplateInputType.Photo },
         { "messageTitle", TemplateInputType.Text },
         { "message", TemplateInputType.TextArea },
         { "finalMessage", TemplateInputType.TextArea }
