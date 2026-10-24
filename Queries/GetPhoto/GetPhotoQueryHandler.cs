@@ -1,5 +1,5 @@
-using momentify_backend.Interfaces;
 using momentify_backend.Readers;
+using momentify_backend.Storage;
 
 namespace momentify_backend.Queries.GetPhoto;
 
