@@ -1,7 +1,7 @@
 using System.Text.Json;
 using momentify_backend.Models;
 
-namespace momentify_backend.Services;
+namespace momentify_backend.Validation;
 
 public static class TemplateValidator
 {

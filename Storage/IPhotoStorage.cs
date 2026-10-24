@@ -1,4 +1,4 @@
-namespace momentify_backend.Interfaces;
+namespace momentify_backend.Storage;
 
 public interface IPhotoStorage
 {

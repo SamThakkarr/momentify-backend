@@ -35,11 +35,14 @@ public class ExceptionHandlingMiddleware
             ArgumentException =>
                 StatusCodes.Status400BadRequest,
 
+            InvalidOperationException =>
+                StatusCodes.Status409Conflict,
+
             KeyNotFoundException =>
                 StatusCodes.Status404NotFound,
 
             UnauthorizedAccessException =>
-                StatusCodes.Status403Forbidden,
+                StatusCodes.Status401Unauthorized,
 
             _ =>
                 StatusCodes.Status500InternalServerError

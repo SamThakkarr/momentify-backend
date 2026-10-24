@@ -21,14 +21,8 @@ public class SiteController : ControllerBase
     [HttpGet("user")]
     public async Task<IActionResult> GetUserSites()
     {
-        var userIdClaim =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null ||
-            !int.TryParse(userIdClaim, out var userId))
-        {
+        if (!TryGetUserId(out var userId))
             return Unauthorized();
-        }
 
         var sites =
             await _siteService.GetSitesByUserIdAsync(userId);
@@ -40,14 +34,8 @@ public class SiteController : ControllerBase
     public async Task<IActionResult> CreateSite(
         CreateSiteRequest request)
     {
-        var userIdClaim =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null ||
-            !int.TryParse(userIdClaim, out var userId))
-        {
+        if (!TryGetUserId(out var userId))
             return Unauthorized();
-        }
 
         var response =
             await _siteService.CreateSiteAsync(
@@ -62,14 +50,8 @@ public class SiteController : ControllerBase
         int siteId,
         CreateSiteRequest request)
     {
-        var userIdClaim =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null ||
-            !int.TryParse(userIdClaim, out var userId))
-        {
+        if (!TryGetUserId(out var userId))
             return Unauthorized();
-        }
 
         await _siteService.UpdateSiteAsync(
             siteId,
@@ -82,14 +64,8 @@ public class SiteController : ControllerBase
     [HttpPost("{siteId}/publish")]
     public async Task<IActionResult> PublishSite(int siteId)
     {
-        var userIdClaim =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null ||
-            !int.TryParse(userIdClaim, out var userId))
-        {
+        if (!TryGetUserId(out var userId))
             return Unauthorized();
-        }
 
         await _siteService.PublishSiteAsync(
             siteId,
@@ -110,5 +86,18 @@ public class SiteController : ControllerBase
             return NotFound();
 
         return Ok(site);
+    }
+
+    private bool TryGetUserId(out int userId)
+    {
+        userId = 0;
+
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null ||
+            !int.TryParse(userIdClaim, out userId))
+            return false;
+
+        return true;
     }
 }

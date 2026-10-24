@@ -18,19 +18,9 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser(CreateUserRequest request)
     {
-        try
-        {
-            var response = await _userService.SaveUserAsync(request);
+        var response = await _userService.SaveUserAsync(request);
 
-            return Ok(response);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new
-            {
-                message = ex.Message
-            });
-        }
+        return Ok(response);
     }
 
     [HttpGet("{userId}")]
@@ -39,9 +29,7 @@ public class UserController : ControllerBase
         var user = await _userService.GetUserAsync(userId);
 
         if (user == null)
-        {
             return NotFound();
-        }
 
         return Ok(user);
     }

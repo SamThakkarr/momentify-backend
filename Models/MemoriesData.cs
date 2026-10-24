@@ -2,7 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using momentify_backend.Data;
 using momentify_backend.Interfaces;
-using momentify_backend.Services;
+using momentify_backend.Validation;
 
 namespace momentify_backend.Models;
 
@@ -74,12 +74,12 @@ public class MemoriesData : ITemplate
         try
         {
             return data.Deserialize<MemoriesData>(
-                       new JsonSerializerOptions
-                       {
-                           PropertyNameCaseInsensitive = true
-                       })
-                   ?? throw new InvalidOperationException(
-                       "Invalid data provided for the Memories template.");
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        })
+                    ?? throw new InvalidOperationException(
+                        "Invalid data provided for the Memories template.");
         }
         catch (JsonException)
         {

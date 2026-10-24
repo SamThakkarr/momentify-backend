@@ -1,4 +1,3 @@
-using System.Text.Json;
 using momentify_backend.Data;
 using momentify_backend.DTOs;
 using momentify_backend.Interfaces;
@@ -52,7 +51,7 @@ public class CreateSiteCommandHandler : ICreateSiteCommandHandler
         if (template == null)
             throw new InvalidOperationException("Template not found.");
 
-        var jsonData = JsonSerializer.SerializeToElement(request.Data);
+        var jsonData = request.Data;
 
         var templateData = _templateFactory.Create(
             request.TemplateType,

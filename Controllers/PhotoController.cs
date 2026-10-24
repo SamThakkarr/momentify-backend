@@ -28,7 +28,8 @@ public class PhotoController : ControllerBase
         [FromForm] int displayOrder = -1,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetUserId();
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
 
         var response = await _photoService.UploadAsync(
             siteId,
@@ -52,7 +53,8 @@ public class PhotoController : ControllerBase
         int photoId,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetUserId();
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
 
         var result = await _photoService.GetAsync(
             siteId,
@@ -88,15 +90,15 @@ public class PhotoController : ControllerBase
             result.Value.ContentType);
     }
 
-    private int GetUserId()
+    private bool TryGetUserId(out int userId)
     {
         var userIdClaim = User.FindFirstValue(
             ClaimTypes.NameIdentifier);
-
+        userId = 0;
         if (userIdClaim == null ||
-            !int.TryParse(userIdClaim, out var userId))
-            throw new UnauthorizedAccessException();
+            !int.TryParse(userIdClaim, out userId))
+            return false;
 
-        return userId;
+        return true;
     }
 }

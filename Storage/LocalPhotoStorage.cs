@@ -1,6 +1,4 @@
-using momentify_backend.Interfaces;
-
-namespace momentify_backend.Services;
+namespace momentify_backend.Storage;
 
 public class LocalPhotoStorage : IPhotoStorage
 {

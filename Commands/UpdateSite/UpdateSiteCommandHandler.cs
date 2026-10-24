@@ -1,4 +1,3 @@
-using System.Text.Json;
 using momentify_backend.Data;
 using momentify_backend.DTOs;
 using momentify_backend.Interfaces;
@@ -58,7 +57,7 @@ public class UpdateSiteCommandHandler : IUpdateSiteCommandHandler
             throw new InvalidOperationException(
                 "The template type cannot be changed.");
 
-        var jsonData = JsonSerializer.SerializeToElement(request.Data);
+        var jsonData = request.Data;
 
         var templateData = _templateFactory.Create(
             request.TemplateType,
