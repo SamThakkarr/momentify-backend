@@ -12,7 +12,8 @@ public class PhotoController : ControllerBase
 {
     private readonly IPhotoService _photoService;
 
-    public PhotoController(IPhotoService photoService)
+    public PhotoController(
+        IPhotoService photoService)
     {
         _photoService = photoService;
     }
@@ -23,6 +24,7 @@ public class PhotoController : ControllerBase
     public async Task<IActionResult> Upload(
         int siteId,
         IFormFile image,
+        [FromForm] int? photoId = null,
         [FromForm] int displayOrder = -1,
         CancellationToken cancellationToken = default)
     {
@@ -31,34 +33,59 @@ public class PhotoController : ControllerBase
         var response = await _photoService.UploadAsync(
             siteId,
             userId,
+            photoId,
             image,
             displayOrder,
             cancellationToken);
+
+        if (photoId.HasValue)
+            return Ok(response);
 
         return Created(
             response.Url,
             response);
     }
 
-    [HttpPut("{photoId:int}")]
-    [Consumes("multipart/form-data")]
-    [RequestSizeLimit(10 * 1024 * 1024)]
-    public async Task<IActionResult> Update(
+    [HttpGet("{photoId:int}", Name = "GetPhoto")]
+    public async Task<IActionResult> Get(
         int siteId,
         int photoId,
-        IFormFile image,
         CancellationToken cancellationToken = default)
     {
         var userId = GetUserId();
 
-        var response = await _photoService.UpdateAsync(
+        var result = await _photoService.GetAsync(
             siteId,
             userId,
             photoId,
-            image,
             cancellationToken);
 
-        return Ok(response);
+        if (result == null)
+            return NotFound();
+
+        return File(
+            result.Value.Stream,
+            result.Value.ContentType);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{photoId:int}/public")]
+    public async Task<IActionResult> PublicGet(
+        int siteId,
+        int photoId,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _photoService.PublicGetAsync(
+            siteId,
+            photoId,
+            cancellationToken);
+
+        if (result == null)
+            return NotFound();
+
+        return File(
+            result.Value.Stream,
+            result.Value.ContentType);
     }
 
     private int GetUserId()
@@ -68,9 +95,7 @@ public class PhotoController : ControllerBase
 
         if (userIdClaim == null ||
             !int.TryParse(userIdClaim, out var userId))
-        {
             throw new UnauthorizedAccessException();
-        }
 
         return userId;
     }

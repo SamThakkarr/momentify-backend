@@ -6,7 +6,7 @@ public class Memory
 
     public int MemoriesDataSiteId { get; set; }
 
-    public string Date { get; set; } = null!;
+    public DateTime Date { get; set; }
 
     public string Title { get; set; } = null!;
 
@@ -16,4 +16,3 @@ public class Memory
 
     public ICollection<MemoryPhoto> Photos { get; set; } = new List<MemoryPhoto>();
 }
-

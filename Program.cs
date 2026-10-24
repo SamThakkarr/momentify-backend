@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using momentify_backend.Commands.CreateOrUpdatePhoto;
 using momentify_backend.Commands.CreateSite;
 using momentify_backend.Commands.CreateUser;
 using momentify_backend.Commands.LoginUser;
@@ -13,6 +14,8 @@ using momentify_backend.Data;
 using momentify_backend.Interfaces;
 using momentify_backend.Middleware;
 using momentify_backend.Models;
+using momentify_backend.Queries.GetPhoto;
+using momentify_backend.Queries.GetPublicPhoto;
 using momentify_backend.Queries.GetSiteBySlug;
 using momentify_backend.Queries.GetTemplates;
 using momentify_backend.Queries.GetUser;
@@ -79,49 +82,29 @@ builder.Services.AddScoped<ISiteReader, SiteReader>();
 builder.Services.AddScoped<ISiteDataReader, SiteDataReader>();
 builder.Services.AddScoped<IUserReader, UserReader>();
 builder.Services.AddScoped<ITemplateReader, TemplateReader>();
+builder.Services.AddScoped<IPhotoReader, PhotoReader>();
 
 builder.Services.AddScoped<ISiteWriter, SiteWriter>();
 builder.Services.AddScoped<IUserWriter, UserWriter>();
 builder.Services.AddScoped<ITemplateWriter, TemplateWriter>();
-builder.Services.AddScoped<
-    ITemplateValidator,
-    TemplateValidator>();
+builder.Services.AddScoped<IPhotoWriter, PhotoWriter>();
 
-builder.Services.AddScoped<
-    IGetUserSitesQueryHandler,
-    GetUserSitesQueryHandler>();
+builder.Services.AddScoped<ITemplateDefinition, OurStoryTemplate>();
+builder.Services.AddScoped<ITemplateDefinition, MemoriesTemplate>();
 
-builder.Services.AddScoped<
-    IGetSiteBySlugQueryHandler,
-    GetSiteBySlugQueryHandler>();
+builder.Services.AddScoped<IGetUserSitesQueryHandler, GetUserSitesQueryHandler>();
+builder.Services.AddScoped<IGetSiteBySlugQueryHandler, GetSiteBySlugQueryHandler>();
+builder.Services.AddScoped<IGetUserQueryHandler, GetUserQueryHandler>();
+builder.Services.AddScoped<IGetTemplatesQueryHandler, GetTemplatesQueryHandler>();
+builder.Services.AddScoped<IGetPhotoQueryHandler, GetPhotoQueryHandler>();
+builder.Services.AddScoped<IGetPublicPhotoQueryHandler, GetPublicPhotoQueryHandler>();
 
-builder.Services.AddScoped<
-    IGetUserQueryHandler,
-    GetUserQueryHandler>();
-
-builder.Services.AddScoped<
-    IGetTemplatesQueryHandler,
-    GetTemplatesQueryHandler>();
-
-builder.Services.AddScoped<
-    ICreateSiteCommandHandler,
-    CreateSiteCommandHandler>();
-
-builder.Services.AddScoped<
-    ICreateUserCommandHandler,
-    CreateUserCommandHandler>();
-
-builder.Services.AddScoped<
-    ILoginUserCommandHandler,
-    LoginUserCommandHandler>();
-
-builder.Services.AddScoped<
-    IUpdateSiteCommandHandler,
-    UpdateSiteCommandHandler>();
-
-builder.Services.AddScoped<
-    IPublishSiteCommandHandler,
-    PublishSiteCommandHandler>();
+builder.Services.AddScoped<ICreateSiteCommandHandler, CreateSiteCommandHandler>();
+builder.Services.AddScoped<ICreateUserCommandHandler, CreateUserCommandHandler>();
+builder.Services.AddScoped<ILoginUserCommandHandler, LoginUserCommandHandler>();
+builder.Services.AddScoped<IUpdateSiteCommandHandler, UpdateSiteCommandHandler>();
+builder.Services.AddScoped<IPublishSiteCommandHandler, PublishSiteCommandHandler>();
+builder.Services.AddScoped<ICreateOrUpdatePhotoCommandHandler, CreateOrUpdatePhotoCommandHandler>();
 
 var app = builder.Build();
 

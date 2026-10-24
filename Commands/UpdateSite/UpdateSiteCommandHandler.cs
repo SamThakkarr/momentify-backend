@@ -18,22 +18,19 @@ public class UpdateSiteCommandHandler : IUpdateSiteCommandHandler
 {
     private readonly AppDbContext _context;
     private readonly ISiteReader _siteReader;
-    private readonly ITemplateReader _templateReader;
     private readonly ITemplateFactory _templateFactory;
-    private readonly ITemplateValidator _templateValidator;
+    private readonly ITemplateReader _templateReader;
 
     public UpdateSiteCommandHandler(
         AppDbContext context,
         ISiteReader siteReader,
         ITemplateReader templateReader,
-        ITemplateFactory templateFactory,
-        ITemplateValidator templateValidator)
+        ITemplateFactory templateFactory)
     {
         _context = context;
         _siteReader = siteReader;
         _templateReader = templateReader;
         _templateFactory = templateFactory;
-        _templateValidator = templateValidator;
     }
 
     public async Task HandleAsync(
@@ -62,10 +59,6 @@ public class UpdateSiteCommandHandler : IUpdateSiteCommandHandler
                 "The template type cannot be changed.");
 
         var jsonData = JsonSerializer.SerializeToElement(request.Data);
-
-        _templateValidator.Validate(
-            request.TemplateType,
-            jsonData);
 
         var templateData = _templateFactory.Create(
             request.TemplateType,

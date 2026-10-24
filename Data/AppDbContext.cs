@@ -11,19 +11,12 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
-
     public DbSet<Template> Templates => Set<Template>();
-
     public DbSet<Site> Sites => Set<Site>();
-
     public DbSet<OurStoryData> OurStoryData => Set<OurStoryData>();
-
     public DbSet<MemoriesData> MemoriesData => Set<MemoriesData>();
-
     public DbSet<Memory> Memories => Set<Memory>();
-
     public DbSet<MemoryPhoto> MemoryPhotos => Set<MemoryPhoto>();
-
     public DbSet<Photo> Photos => Set<Photo>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,6 +32,20 @@ public class AppDbContext : DbContext
             .HasOne<User>()
             .WithMany(x => x.Sites)
             .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // User → Photos
+        modelBuilder.Entity<Photo>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Site → Photos
+        modelBuilder.Entity<Photo>()
+            .HasOne<Site>()
+            .WithMany()
+            .HasForeignKey(x => x.SiteId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Template → Sites
@@ -69,34 +76,44 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Memory>()
+            .Property(x => x.Date)
+            .HasColumnType("date");
+
+        // MemoriesData → Memories
+        modelBuilder.Entity<Memory>()
             .HasOne<MemoriesData>()
             .WithMany(x => x.Memories)
             .HasForeignKey(x => x.MemoriesDataSiteId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Memory → MemoryPhotos
         modelBuilder.Entity<MemoryPhoto>()
             .HasOne<Memory>()
             .WithMany(x => x.Photos)
             .HasForeignKey(x => x.MemoryId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // MemoryPhoto → Photo
         modelBuilder.Entity<MemoryPhoto>()
             .HasOne(x => x.Photo)
             .WithMany()
             .HasForeignKey(x => x.PhotoId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Photo DisplayOrder validation
         modelBuilder.Entity<Photo>()
             .ToTable(table => table.HasCheckConstraint(
                 "CK_Photos_DisplayOrder",
                 "\"DisplayOrder\" = -1 OR \"DisplayOrder\" >= 1"));
 
+        // OurStoryData → CoverPhoto
         modelBuilder.Entity<OurStoryData>()
             .HasOne(x => x.CoverPhoto)
             .WithMany()
             .HasForeignKey(x => x.CoverPhotoId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // OurStoryData → MemoryPhoto
         modelBuilder.Entity<OurStoryData>()
             .HasOne(x => x.MemoryPhoto)
             .WithMany()

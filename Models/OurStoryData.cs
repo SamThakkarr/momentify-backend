@@ -1,12 +1,13 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using momentify_backend.Data;
 using momentify_backend.Interfaces;
+using momentify_backend.Services;
 
 namespace momentify_backend.Models;
 
 public class OurStoryData : ITemplate
 {
-    public int SiteId { get; set; }
     public int? CoverPhotoId { get; set; }
     public int? MemoryPhotoId { get; set; }
     public Photo? CoverPhoto { get; set; }
@@ -15,6 +16,7 @@ public class OurStoryData : ITemplate
     public string MessageTitle { get; set; } = null!;
     public string Message { get; set; } = null!;
     public string FinalMessage { get; set; } = null!;
+    public int SiteId { get; set; }
 
     public async Task SaveAsync(AppDbContext context)
     {
@@ -27,5 +29,31 @@ public class OurStoryData : ITemplate
             context.OurStoryData.Add(this);
 
         await context.SaveChangesAsync();
+    }
+
+    public static OurStoryData Parse(JsonElement data)
+    {
+        var inputRequired =
+            new OurStoryTemplate().InputRequired;
+
+        TemplateValidator.Validate(
+            data,
+            inputRequired);
+
+        try
+        {
+            return data.Deserialize<OurStoryData>(
+                       new JsonSerializerOptions
+                       {
+                           PropertyNameCaseInsensitive = true
+                       })
+                   ?? throw new InvalidOperationException(
+                       "Invalid data provided for the Our Story template.");
+        }
+        catch (JsonException)
+        {
+            throw new InvalidOperationException(
+                "Invalid data provided for the Our Story template.");
+        }
     }
 }

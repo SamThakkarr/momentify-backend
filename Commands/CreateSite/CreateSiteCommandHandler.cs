@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using momentify_backend.Data;
 using momentify_backend.DTOs;
 using momentify_backend.Interfaces;
@@ -19,26 +18,23 @@ public interface ICreateSiteCommandHandler
 public class CreateSiteCommandHandler : ICreateSiteCommandHandler
 {
     private readonly AppDbContext _context;
-    private readonly IUserReader _userReader;
-    private readonly ITemplateReader _templateReader;
     private readonly ISiteWriter _siteWriter;
     private readonly ITemplateFactory _templateFactory;
-    private readonly ITemplateValidator _templateValidator;
+    private readonly ITemplateReader _templateReader;
+    private readonly IUserReader _userReader;
 
     public CreateSiteCommandHandler(
         AppDbContext context,
         IUserReader userReader,
         ITemplateReader templateReader,
         ISiteWriter siteWriter,
-        ITemplateFactory templateFactory,
-        ITemplateValidator templateValidator)
+        ITemplateFactory templateFactory)
     {
         _context = context;
         _userReader = userReader;
         _templateReader = templateReader;
         _siteWriter = siteWriter;
         _templateFactory = templateFactory;
-        _templateValidator = templateValidator;
     }
 
     public async Task<CreateSiteResponse> HandleAsync(
@@ -57,10 +53,6 @@ public class CreateSiteCommandHandler : ICreateSiteCommandHandler
             throw new InvalidOperationException("Template not found.");
 
         var jsonData = JsonSerializer.SerializeToElement(request.Data);
-
-        _templateValidator.Validate(
-            request.TemplateType,
-            jsonData);
 
         var templateData = _templateFactory.Create(
             request.TemplateType,

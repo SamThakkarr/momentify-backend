@@ -52,9 +52,8 @@ namespace momentify_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -158,15 +157,21 @@ namespace momentify_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("SiteId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("StorageKey")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SiteId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Photos", t =>
                         {
@@ -321,6 +326,21 @@ namespace momentify_backend.Migrations
                     b.Navigation("CoverPhoto");
 
                     b.Navigation("MemoryPhoto");
+                });
+
+            modelBuilder.Entity("momentify_backend.Models.Photo", b =>
+                {
+                    b.HasOne("momentify_backend.Models.Site", null)
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("momentify_backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("momentify_backend.Models.Site", b =>

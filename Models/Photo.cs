@@ -4,9 +4,11 @@ public class Photo
 {
     public int Id { get; set; }
 
-    public string StorageKey { get; set; } = null!;
+    public int UserId { get; set; }
 
-    public string Url { get; set; } = null!;
+    public int SiteId { get; set; }
+
+    public string StorageKey { get; set; } = null!;
 
     public string OriginalFileName { get; set; } = null!;
 

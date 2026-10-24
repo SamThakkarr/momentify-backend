@@ -6,38 +6,20 @@ namespace momentify_backend.Services;
 
 public class TemplateFactory : ITemplateFactory
 {
-    public ITemplate Create(TemplateType templateType, JsonElement data)
+    public ITemplate Create(
+        TemplateType templateType,
+        JsonElement data)
     {
-        try
+        return templateType switch
         {
-            return templateType switch
-            {
-                TemplateType.OurStory =>
-                    data.Deserialize<OurStoryData>(
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        })
-                    ?? throw new InvalidOperationException(
-                        "Invalid data provided for the Our Story template."),
+            TemplateType.OurStory =>
+                OurStoryData.Parse(data),
 
-                TemplateType.Memories =>
-                    data.Deserialize<MemoriesData>(
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        })
-                    ?? throw new InvalidOperationException(
-                        "Invalid data provided for the Memories template."),
+            TemplateType.Memories =>
+                MemoriesData.Parse(data),
 
-                _ => throw new InvalidOperationException(
-                    "Template data handling is not implemented.")
-            };
-        }
-        catch (JsonException)
-        {
-            throw new InvalidOperationException(
-                $"Invalid data provided for the {templateType} template.");
-        }
+            _ => throw new InvalidOperationException(
+                "Template data handling is not implemented.")
+        };
     }
 }
