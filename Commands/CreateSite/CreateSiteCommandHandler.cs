@@ -40,6 +40,7 @@ public class CreateSiteCommandHandler : ICreateSiteCommandHandler
         CreateSiteRequest request,
         int userId)
     {
+
         var user = await _userReader.GetByIdAsync(userId);
 
         if (user == null)

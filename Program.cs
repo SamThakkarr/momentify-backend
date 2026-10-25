@@ -1,4 +1,6 @@
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,106 +26,128 @@ using momentify_backend.Readers;
 using momentify_backend.Services;
 using momentify_backend.Storage;
 using momentify_backend.Writers;
+using momentify_backend.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Enter your JWT token."
-    });
-
-    options.AddSecurityRequirement(document =>
-        new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-        });
-});
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(
-                    builder.Configuration["Jwt:Key"]!))
-        };
-    });
-
-builder.Services.AddAuthorization();
-builder.Services.AddControllers();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ITemplateService, TemplateService>();
-builder.Services.AddScoped<ISiteService, SiteService>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
-builder.Services.AddScoped<IPhotoStorage, LocalPhotoStorage>();
-builder.Services.AddScoped<ITemplateFactory, TemplateFactory>();
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-
-builder.Services.AddScoped<ISiteReader, SiteReader>();
-builder.Services.AddScoped<ISiteDataReader, SiteDataReader>();
-builder.Services.AddScoped<IUserReader, UserReader>();
-builder.Services.AddScoped<ITemplateReader, TemplateReader>();
-builder.Services.AddScoped<IPhotoReader, PhotoReader>();
-
-builder.Services.AddScoped<ISiteWriter, SiteWriter>();
-builder.Services.AddScoped<IUserWriter, UserWriter>();
-builder.Services.AddScoped<ITemplateWriter, TemplateWriter>();
-builder.Services.AddScoped<IPhotoWriter, PhotoWriter>();
-
-builder.Services.AddScoped<ITemplateDefinition, OurStoryTemplate>();
-builder.Services.AddScoped<ITemplateDefinition, MemoriesTemplate>();
-
-builder.Services.AddScoped<IGetUserSitesQueryHandler, GetUserSitesQueryHandler>();
-builder.Services.AddScoped<IGetSiteBySlugQueryHandler, GetSiteBySlugQueryHandler>();
-builder.Services.AddScoped<IGetUserQueryHandler, GetUserQueryHandler>();
-builder.Services.AddScoped<IGetTemplatesQueryHandler, GetTemplatesQueryHandler>();
-builder.Services.AddScoped<IGetPhotoQueryHandler, GetPhotoQueryHandler>();
-builder.Services.AddScoped<IGetPublicPhotoQueryHandler, GetPublicPhotoQueryHandler>();
-
-builder.Services.AddScoped<ICreateSiteCommandHandler, CreateSiteCommandHandler>();
-builder.Services.AddScoped<ICreateUserCommandHandler, CreateUserCommandHandler>();
-builder.Services.AddScoped<ILoginUserCommandHandler, LoginUserCommandHandler>();
-builder.Services.AddScoped<IUpdateSiteCommandHandler, UpdateSiteCommandHandler>();
-builder.Services.AddScoped<IPublishSiteCommandHandler, PublishSiteCommandHandler>();
-builder.Services.AddScoped<ICreateOrUpdatePhotoCommandHandler, CreateOrUpdatePhotoCommandHandler>();
+RegisterValidators(builder.Services);
+ConfigureSwagger(builder.Services);
+ConfigureAuthentication(builder.Services, builder.Configuration);
+ConfigureApplicationServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-// Map API controllers
-app.MapControllers();
+ConfigurePipeline(app);
 
 app.Run();
+
+static void RegisterValidators(IServiceCollection services)
+{
+    services.AddFluentValidationAutoValidation();
+    services.AddValidatorsFromAssemblyContaining<CreateSiteRequestValidator>();
+}
+
+static void ConfigureSwagger(IServiceCollection services)
+{
+    services.AddSwaggerGen(options =>
+    {
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Enter your JWT token."
+        });
+
+        options.AddSecurityRequirement(document =>
+            new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+            });
+    });
+}
+
+static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
+{
+    services
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer = configuration["Jwt:Issuer"],
+                ValidAudience = configuration["Jwt:Audience"],
+
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
+            };
+        });
+
+    services.AddAuthorization();
+    services.AddControllers();
+}
+
+static void ConfigureApplicationServices(IServiceCollection services, IConfiguration configuration)
+{
+    services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+    services.AddScoped<IUserService, UserService>();
+    services.AddScoped<ITemplateService, TemplateService>();
+    services.AddScoped<ISiteService, SiteService>();
+    services.AddScoped<IPhotoService, PhotoService>();
+    services.AddScoped<IPhotoStorage, LocalPhotoStorage>();
+    services.AddScoped<ITemplateFactory, TemplateFactory>();
+    services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+    services.AddScoped<ISiteReader, SiteReader>();
+    services.AddScoped<ISiteDataReader, SiteDataReader>();
+    services.AddScoped<IUserReader, UserReader>();
+    services.AddScoped<ITemplateReader, TemplateReader>();
+    services.AddScoped<IPhotoReader, PhotoReader>();
+
+    services.AddScoped<ISiteWriter, SiteWriter>();
+    services.AddScoped<IUserWriter, UserWriter>();
+    services.AddScoped<ITemplateWriter, TemplateWriter>();
+    services.AddScoped<IPhotoWriter, PhotoWriter>();
+
+    services.AddScoped<ITemplateDefinition, OurStoryTemplate>();
+    services.AddScoped<ITemplateDefinition, MemoriesTemplate>();
+
+    services.AddScoped<IGetUserSitesQueryHandler, GetUserSitesQueryHandler>();
+    services.AddScoped<IGetSiteBySlugQueryHandler, GetSiteBySlugQueryHandler>();
+    services.AddScoped<IGetUserQueryHandler, GetUserQueryHandler>();
+    services.AddScoped<IGetTemplatesQueryHandler, GetTemplatesQueryHandler>();
+    services.AddScoped<IGetPhotoQueryHandler, GetPhotoQueryHandler>();
+    services.AddScoped<IGetPublicPhotoQueryHandler, GetPublicPhotoQueryHandler>();
+
+    services.AddScoped<ICreateSiteCommandHandler, CreateSiteCommandHandler>();
+    services.AddScoped<ICreateUserCommandHandler, CreateUserCommandHandler>();
+    services.AddScoped<ILoginUserCommandHandler, LoginUserCommandHandler>();
+    services.AddScoped<IUpdateSiteCommandHandler, UpdateSiteCommandHandler>();
+    services.AddScoped<IPublishSiteCommandHandler, PublishSiteCommandHandler>();
+    services.AddScoped<ICreateOrUpdatePhotoCommandHandler, CreateOrUpdatePhotoCommandHandler>();
+}
+
+static void ConfigurePipeline(WebApplication app)
+{
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    app.MapControllers();
+}
