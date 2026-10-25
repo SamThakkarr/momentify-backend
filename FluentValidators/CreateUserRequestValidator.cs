@@ -1,7 +1,7 @@
 using FluentValidation;
 using momentify_backend.DTOs;
 
-namespace momentify_backend.Validators;
+namespace momentify_backend.FluentValidators;
 
 public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
 {

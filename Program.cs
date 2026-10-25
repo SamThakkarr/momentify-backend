@@ -13,6 +13,7 @@ using momentify_backend.Commands.LoginUser;
 using momentify_backend.Commands.PublishSite;
 using momentify_backend.Commands.UpdateSite;
 using momentify_backend.Data;
+using momentify_backend.FluentValidators;
 using momentify_backend.Interfaces;
 using momentify_backend.Middleware;
 using momentify_backend.Models;
@@ -26,7 +27,6 @@ using momentify_backend.Readers;
 using momentify_backend.Services;
 using momentify_backend.Storage;
 using momentify_backend.Writers;
-using momentify_backend.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
