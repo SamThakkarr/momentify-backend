@@ -1,4 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using momentify_backend.Data;
 using momentify_backend.DTOs;
 using momentify_backend.Models;
@@ -18,17 +22,20 @@ public class CreateUserCommandHandler : ICreateUserCommandHandler
     private readonly IUserReader _userReader;
     private readonly IUserWriter _userWriter;
     private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IConfiguration _configuration;
 
     public CreateUserCommandHandler(
         AppDbContext context,
         IUserReader userReader,
         IUserWriter userWriter,
-        IPasswordHasher<User> passwordHasher)
+        IPasswordHasher<User> passwordHasher,
+        IConfiguration configuration)
     {
         _context = context;
         _userReader = userReader;
         _userWriter = userWriter;
         _passwordHasher = passwordHasher;
+        _configuration = configuration;
     }
 
     public async Task<CreateUserResponse> HandleAsync(
@@ -59,10 +66,40 @@ public class CreateUserCommandHandler : ICreateUserCommandHandler
 
         await _context.SaveChangesAsync();
 
+        var token = GenerateToken(user);
+
         return new CreateUserResponse
         {
             UserId = user.Id,
-            CreatedAt = user.CreatedAt
+            CreatedAt = user.CreatedAt,
+            Token = token
         };
+    }
+
+    private string GenerateToken(User user)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.Name)
+        };
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(
+                _configuration["Jwt:Key"]!));
+
+        var credentials = new SigningCredentials(
+            key,
+            SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(2),
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
