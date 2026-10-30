@@ -18,11 +18,11 @@ public interface ICreateUserCommandHandler
 
 public class CreateUserCommandHandler : ICreateUserCommandHandler
 {
+    private readonly IConfiguration _configuration;
     private readonly AppDbContext _context;
+    private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IUserReader _userReader;
     private readonly IUserWriter _userWriter;
-    private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly IConfiguration _configuration;
 
     public CreateUserCommandHandler(
         AppDbContext context,
@@ -45,15 +45,13 @@ public class CreateUserCommandHandler : ICreateUserCommandHandler
             await _userReader.GetByEmailAsync(request.Email);
 
         if (existingUser != null)
-        {
             throw new InvalidOperationException(
                 "A user with this email already exists.");
-        }
 
         var user = new User
         {
             Name = request.Name,
-            Email = request.Email,
+            Email = request.Email.Trim().ToLowerInvariant(),
             PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber)
                 ? null
                 : request.PhoneNumber.Trim(),
@@ -96,9 +94,9 @@ public class CreateUserCommandHandler : ICreateUserCommandHandler
             SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
+            _configuration["Jwt:Issuer"],
+            _configuration["Jwt:Audience"],
+            claims,
             expires: DateTime.UtcNow.AddHours(2),
             signingCredentials: credentials);
 
