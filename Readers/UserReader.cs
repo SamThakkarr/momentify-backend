@@ -30,6 +30,6 @@ public class UserReader : IUserReader
         var normalizedEmail = email.Trim();
 
         return await _context.Users
-            .FirstOrDefaultAsync(x => x.Email.Equals(normalizedEmail, StringComparison.CurrentCultureIgnoreCase));
+            .FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail.ToLower());
     }
 }
