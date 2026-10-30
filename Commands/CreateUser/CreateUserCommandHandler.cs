@@ -54,7 +54,9 @@ public class CreateUserCommandHandler : ICreateUserCommandHandler
         {
             Name = request.Name,
             Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
+            PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber)
+                ? null
+                : request.PhoneNumber.Trim(),
             CreatedAt = DateTime.UtcNow
         };
 
