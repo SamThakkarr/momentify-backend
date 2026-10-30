@@ -41,12 +41,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Site → Photos
-        modelBuilder.Entity<Photo>()
-            .HasOne<Site>()
-            .WithMany()
-            .HasForeignKey(x => x.SiteId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         // Template → Sites
         modelBuilder.Entity<Site>()
@@ -107,17 +101,17 @@ public class AppDbContext : DbContext
                 "\"DisplayOrder\" = -1 OR \"DisplayOrder\" >= 1"));
 
         // OurStoryData → CoverPhoto
-        modelBuilder.Entity<OurStoryData>()
-            .HasOne(x => x.CoverPhoto)
-            .WithMany()
-            .HasForeignKey(x => x.CoverPhotoId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // OurStoryData → MemoryPhoto
-        modelBuilder.Entity<OurStoryData>()
-            .HasOne(x => x.MemoryPhoto)
-            .WithMany()
-            .HasForeignKey(x => x.MemoryPhotoId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // modelBuilder.Entity<OurStoryData>()
+        //     .HasOne(x => x.CoverPhoto)
+        //     .WithMany()
+        //     .HasForeignKey(x => x.CoverPhotoId)
+        //     .OnDelete(DeleteBehavior.Restrict);
+        //
+        // // OurStoryData → MemoryPhoto
+        // modelBuilder.Entity<OurStoryData>()
+        //     .HasOne(x => x.MemoryPhoto)
+        //     .WithMany()
+        //     .HasForeignKey(x => x.MemoryPhotoId)
+        //     .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -6,6 +6,11 @@ namespace momentify_backend.Readers;
 
 public interface IPhotoReader
 {
+    Task<Photo?> GetByIdForUserAsync(
+        int photoId,
+        int userId,
+        CancellationToken cancellationToken = default);
+
     Task<Photo?> GetByIdForUserAndSiteAsync(
         int photoId,
         int siteId,
@@ -32,18 +37,28 @@ public class PhotoReader : IPhotoReader
         _context = context;
     }
 
-    public async Task<Photo?> GetByIdForUserAndSiteAsync(
+    public async Task<Photo?> GetByIdForUserAsync(
         int photoId,
-        int siteId,
         int userId,
         CancellationToken cancellationToken = default)
     {
         return await _context.Photos
             .FirstOrDefaultAsync(
                 x => x.Id == photoId &&
-                     x.SiteId == siteId &&
                      x.UserId == userId,
                 cancellationToken);
+    }
+
+    public async Task<Photo?> GetByIdForUserAndSiteAsync(
+        int photoId,
+        int siteId,
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await GetByIdForUserAsync(
+            photoId,
+            userId,
+            cancellationToken);
     }
 
     public async Task<Photo?> GetPublishedPhotoAsync(
@@ -54,10 +69,9 @@ public class PhotoReader : IPhotoReader
         return await _context.Photos
             .FirstOrDefaultAsync(
                 x => x.Id == photoId &&
-                     x.SiteId == siteId &&
-                     _context.Sites.Any(
-                         site => site.Id == siteId &&
-                                 site.IsPublished),
+                     _context.Sites.Any(site => site.Id == siteId &&
+                                                site.IsPublished &&
+                                                site.UserId == x.UserId),
                 cancellationToken);
     }
 
@@ -73,4 +87,3 @@ public class PhotoReader : IPhotoReader
                 cancellationToken);
     }
 }
-

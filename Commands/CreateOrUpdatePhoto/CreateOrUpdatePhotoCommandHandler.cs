@@ -10,7 +10,6 @@ namespace momentify_backend.Commands.CreateOrUpdatePhoto;
 public interface ICreateOrUpdatePhotoCommandHandler
 {
     Task<PhotoUploadResponse> HandleAsync(
-        int siteId,
         int userId,
         int? photoId,
         IFormFile image,
@@ -40,23 +39,12 @@ public class CreateOrUpdatePhotoCommandHandler
     }
 
     public async Task<PhotoUploadResponse> HandleAsync(
-        int siteId,
         int userId,
         int? photoId,
         IFormFile image,
         int displayOrder,
         CancellationToken cancellationToken = default)
     {
-        var ownsSite =
-            await _photoReader.SiteBelongsToUserAsync(
-                siteId,
-                userId,
-                cancellationToken);
-
-        if (!ownsSite)
-            throw new KeyNotFoundException(
-                "Site not found.");
-
         if (displayOrder != -1 &&
             displayOrder < 1)
             throw new ArgumentException(
@@ -68,12 +56,11 @@ public class CreateOrUpdatePhotoCommandHandler
 
         Photo? existingPhoto = null;
 
-        if (photoId.HasValue)
+        if (photoId is > 0)
         {
             existingPhoto =
-                await _photoReader.GetByIdForUserAndSiteAsync(
+                await _photoReader.GetByIdForUserAsync(
                     photoId.Value,
-                    siteId,
                     userId,
                     cancellationToken);
 
@@ -88,7 +75,7 @@ public class CreateOrUpdatePhotoCommandHandler
         {
             storageKey =
                 await _storage.SaveAsync(
-                    siteId,
+                    userId,
                     imageInfo.FileName,
                     imageInfo.ContentType,
                     input,
@@ -100,7 +87,6 @@ public class CreateOrUpdatePhotoCommandHandler
             var photo = new Photo
             {
                 UserId = userId,
-                SiteId = siteId,
                 StorageKey = storageKey,
                 OriginalFileName = imageInfo.FileName,
                 ContentType = imageInfo.ContentType,
@@ -163,7 +149,6 @@ public class CreateOrUpdatePhotoCommandHandler
         return ToResponse(existingPhoto);
     }
 
-
     private PhotoUploadResponse ToResponse(
         Photo photo)
     {
@@ -171,7 +156,6 @@ public class CreateOrUpdatePhotoCommandHandler
             "GetPhoto",
             new
             {
-                photo.SiteId,
                 photoId = photo.Id
             });
 

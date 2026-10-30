@@ -10,8 +10,6 @@ public class OurStoryData : ITemplate
 {
     public int? CoverPhotoId { get; set; }
     public int? MemoryPhotoId { get; set; }
-    public Photo? CoverPhoto { get; set; }
-    public Photo? MemoryPhoto { get; set; }
     public string HeroSubtitle { get; set; } = null!;
     public string MessageTitle { get; set; } = null!;
     public string Message { get; set; } = null!;
@@ -43,12 +41,12 @@ public class OurStoryData : ITemplate
         try
         {
             return data.Deserialize<OurStoryData>(
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        })
-                    ?? throw new InvalidOperationException(
-                        "Invalid data provided for the Our Story template.");
+                       new JsonSerializerOptions
+                       {
+                           PropertyNameCaseInsensitive = true
+                       })
+                   ?? throw new InvalidOperationException(
+                       "Invalid data provided for the Our Story template.");
         }
         catch (JsonException)
         {

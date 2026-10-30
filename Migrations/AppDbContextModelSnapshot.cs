@@ -157,9 +157,6 @@ namespace momentify_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("SiteId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("StorageKey")
                         .IsRequired()
                         .HasColumnType("text");
@@ -168,8 +165,6 @@ namespace momentify_backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SiteId");
 
                     b.HasIndex("UserId");
 
@@ -330,12 +325,6 @@ namespace momentify_backend.Migrations
 
             modelBuilder.Entity("momentify_backend.Models.Photo", b =>
                 {
-                    b.HasOne("momentify_backend.Models.Site", null)
-                        .WithMany()
-                        .HasForeignKey("SiteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("momentify_backend.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")

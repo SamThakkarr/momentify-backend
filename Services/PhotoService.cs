@@ -8,7 +8,6 @@ namespace momentify_backend.Services;
 public interface IPhotoService
 {
     Task<PhotoUploadResponse> UploadAsync(
-        int siteId,
         int userId,
         int? photoId,
         IFormFile image,
@@ -44,7 +43,6 @@ public class PhotoService : IPhotoService
     }
 
     public async Task<PhotoUploadResponse> UploadAsync(
-        int siteId,
         int userId,
         int? photoId,
         IFormFile image,
@@ -52,7 +50,6 @@ public class PhotoService : IPhotoService
         CancellationToken cancellationToken = default)
     {
         return await _createOrUpdatePhotoHandler.HandleAsync(
-            siteId,
             userId,
             photoId,
             image,

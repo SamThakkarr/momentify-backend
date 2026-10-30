@@ -13,14 +13,14 @@ public class LocalPhotoStorage : IPhotoStorage
     }
 
     public async Task<string> SaveAsync(
-        int siteId,
+        int userId,
         string fileName,
         string contentType,
         Stream content,
         CancellationToken cancellationToken = default)
     {
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        var storageKey = $"uploads/{siteId}/{Guid.NewGuid():N}{extension}";
+        var storageKey = $"uploads/{userId}/{Guid.NewGuid():N}{extension}";
         var fullPath = GetFullPath(storageKey);
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
 

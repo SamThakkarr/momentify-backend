@@ -6,7 +6,6 @@ public class Photo
 
     public int UserId { get; set; }
 
-    public int SiteId { get; set; }
 
     public string StorageKey { get; set; } = null!;
 

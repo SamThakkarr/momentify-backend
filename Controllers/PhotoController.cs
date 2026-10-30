@@ -6,7 +6,7 @@ using momentify_backend.Services;
 namespace momentify_backend.Controllers;
 
 [ApiController]
-[Route("api/Site/{siteId:int}/photos")]
+[Route("api/photo")]
 [Authorize]
 public class PhotoController : ControllerBase
 {
@@ -18,11 +18,10 @@ public class PhotoController : ControllerBase
         _photoService = photoService;
     }
 
-    [HttpPost]
+    [HttpPost("upload")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(10 * 1024 * 1024)]
     public async Task<IActionResult> Upload(
-        int siteId,
         IFormFile image,
         [FromForm] int? photoId = null,
         [FromForm] int displayOrder = -1,
@@ -32,14 +31,13 @@ public class PhotoController : ControllerBase
             return Unauthorized();
 
         var response = await _photoService.UploadAsync(
-            siteId,
             userId,
             photoId,
             image,
             displayOrder,
             cancellationToken);
 
-        if (photoId.HasValue)
+        if (photoId is > 0)
             return Ok(response);
 
         return Created(

@@ -3,7 +3,7 @@ namespace momentify_backend.Storage;
 public interface IPhotoStorage
 {
     Task<string> SaveAsync(
-        int siteId,
+        int userId,
         string fileName,
         string contentType,
         Stream content,

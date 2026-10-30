@@ -26,8 +26,6 @@ public class SiteDataReader : ISiteDataReader
         {
             TemplateType.OurStory =>
                 await _context.OurStoryData
-                    .Include(x => x.CoverPhoto)
-                    .Include(x => x.MemoryPhoto)
                     .FirstOrDefaultAsync(x => x.SiteId == siteId),
 
             TemplateType.Memories =>
@@ -42,4 +40,3 @@ public class SiteDataReader : ISiteDataReader
         };
     }
 }
-
