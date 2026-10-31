@@ -15,6 +15,8 @@ public static class TemplateValidator
 
         foreach (var input in inputRequired)
         {
+            if (input.Key.Contains(".*"))
+                continue; // Skip nested properties for now
             if (!data.TryGetProperty(
                     input.Key,
                     out var property))
@@ -69,18 +71,6 @@ public static class TemplateValidator
                 break;
 
             case TemplateInputType.PhotoGallery:
-                if (property.ValueKind != JsonValueKind.Array)
-                    throw new ArgumentException(
-                        $"Field '{propertyName}' must be an array.");
-                break;
-
-            case TemplateInputType.Object:
-                if (property.ValueKind != JsonValueKind.Object)
-                    throw new ArgumentException(
-                        $"Field '{propertyName}' must be an object.");
-                break;
-
-            case TemplateInputType.ObjectCollection:
                 if (property.ValueKind != JsonValueKind.Array)
                     throw new ArgumentException(
                         $"Field '{propertyName}' must be an array.");

@@ -12,8 +12,11 @@ public class MemoriesTemplate : ITemplateDefinition
     {
         { "heroTitle", TemplateInputType.Text },
         { "introMessage", TemplateInputType.TextArea },
-        { "memories", TemplateInputType.ObjectCollection },
+        { "memories.*.title", TemplateInputType.Text },
+        { "memories.*.description", TemplateInputType.TextArea },
+        { "memories.*.date", TemplateInputType.Date },
+        { "memories.*.displayOrder", TemplateInputType.Number },
+        { "memories.*.photos.*.photoId", TemplateInputType.Photo },
         { "finalMessage", TemplateInputType.TextArea }
     };
 }
-

@@ -99,19 +99,5 @@ public class AppDbContext : DbContext
             .ToTable(table => table.HasCheckConstraint(
                 "CK_Photos_DisplayOrder",
                 "\"DisplayOrder\" = -1 OR \"DisplayOrder\" >= 1"));
-
-        // OurStoryData → CoverPhoto
-        // modelBuilder.Entity<OurStoryData>()
-        //     .HasOne(x => x.CoverPhoto)
-        //     .WithMany()
-        //     .HasForeignKey(x => x.CoverPhotoId)
-        //     .OnDelete(DeleteBehavior.Restrict);
-        //
-        // // OurStoryData → MemoryPhoto
-        // modelBuilder.Entity<OurStoryData>()
-        //     .HasOne(x => x.MemoryPhoto)
-        //     .WithMany()
-        //     .HasForeignKey(x => x.MemoryPhotoId)
-        //     .OnDelete(DeleteBehavior.Restrict);
     }
 }

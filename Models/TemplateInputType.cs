@@ -7,7 +7,5 @@ public enum TemplateInputType
     Photo,
     PhotoGallery,
     Date,
-    Number,
-    Object,
-    ObjectCollection
+    Number
 }
