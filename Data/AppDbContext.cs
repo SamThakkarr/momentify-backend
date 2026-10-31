@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using momentify_backend.Models;
+using momentify_backend.Platform.Database.Models;
 
 namespace momentify_backend.Data;
 

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using momentify_backend.Services;
+using momentify_backend.Services.Photo;
 
 namespace momentify_backend.Controllers;
 

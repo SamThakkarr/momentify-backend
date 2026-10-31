@@ -1,6 +1,6 @@
 using System.Text.Json;
-using momentify_backend.Interfaces;
-using momentify_backend.Models;
+using momentify_backend.Platform.Database.Models;
+using momentify_backend.Platform.Interfaces;
 
 namespace momentify_backend.Services;
 

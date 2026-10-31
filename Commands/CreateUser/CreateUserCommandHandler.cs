@@ -4,10 +4,10 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using momentify_backend.Data;
-using momentify_backend.DTOs;
-using momentify_backend.Models;
-using momentify_backend.Readers;
-using momentify_backend.Writers;
+using momentify_backend.Platform.Database.Models;
+using momentify_backend.Platform.Readers;
+using momentify_backend.Platform.Writers;
+using momentify_backend.Services.User.Contracts;
 
 namespace momentify_backend.Commands.CreateUser;
 

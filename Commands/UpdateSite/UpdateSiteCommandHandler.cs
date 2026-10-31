@@ -1,7 +1,7 @@
 using momentify_backend.Data;
-using momentify_backend.DTOs;
-using momentify_backend.Interfaces;
-using momentify_backend.Readers;
+using momentify_backend.Platform.Interfaces;
+using momentify_backend.Platform.Readers;
+using momentify_backend.Services.Site.Contracts;
 
 namespace momentify_backend.Commands.UpdateSite;
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using momentify_backend.DTOs;
 using momentify_backend.Services;
+using momentify_backend.Services.User;
+using momentify_backend.Services.User.Contracts;
 
 namespace momentify_backend.Controllers;
 

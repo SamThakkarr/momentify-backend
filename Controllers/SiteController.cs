@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using momentify_backend.DTOs;
 using momentify_backend.Services;
+using momentify_backend.Services.Site;
+using momentify_backend.Services.Site.Contracts;
 
 namespace momentify_backend.Controllers;
 

@@ -1,9 +1,9 @@
 using momentify_backend.Data;
-using momentify_backend.DTOs;
-using momentify_backend.Interfaces;
-using momentify_backend.Models;
-using momentify_backend.Readers;
-using momentify_backend.Writers;
+using momentify_backend.Platform.Database.Models;
+using momentify_backend.Platform.Interfaces;
+using momentify_backend.Platform.Readers;
+using momentify_backend.Platform.Writers;
+using momentify_backend.Services.Site.Contracts;
 
 namespace momentify_backend.Commands.CreateSite;
 

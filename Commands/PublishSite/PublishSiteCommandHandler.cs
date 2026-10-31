@@ -1,6 +1,6 @@
 using momentify_backend.Data;
-using momentify_backend.Readers;
-using momentify_backend.Writers;
+using momentify_backend.Platform.Readers;
+using momentify_backend.Platform.Writers;
 
 namespace momentify_backend.Commands.PublishSite;
 

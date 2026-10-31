@@ -1,9 +1,9 @@
-using momentify_backend.DTOs;
-using momentify_backend.Models;
-using momentify_backend.Readers;
-using momentify_backend.Storage;
-using momentify_backend.Validation;
-using momentify_backend.Writers;
+using momentify_backend.Platform.Database.Models;
+using momentify_backend.Platform.Readers;
+using momentify_backend.Platform.Storage;
+using momentify_backend.Platform.Validation;
+using momentify_backend.Platform.Writers;
+using momentify_backend.Services.Photo.Contracts;
 
 namespace momentify_backend.Commands.CreateOrUpdatePhoto;
 
