@@ -22,7 +22,7 @@ namespace momentify_backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("momentify_backend.Models.MemoriesData", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.MemoriesData", b =>
                 {
                     b.Property<int>("SiteId")
                         .HasColumnType("integer");
@@ -44,7 +44,7 @@ namespace momentify_backend.Migrations
                     b.ToTable("MemoriesData");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Memory", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Memory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,7 @@ namespace momentify_backend.Migrations
                     b.ToTable("Memories");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.MemoryPhoto", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.MemoryPhoto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,24 @@ namespace momentify_backend.Migrations
                     b.ToTable("MemoryPhotos");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.OurStoryData", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.NoButtonText", b =>
+                {
+                    b.Property<int>("SiteId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("SiteId", "DisplayOrder");
+
+                    b.ToTable("NoButtonTexts");
+                });
+
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.OurStoryData", b =>
                 {
                     b.Property<int>("SiteId")
                         .HasColumnType("integer");
@@ -128,14 +145,10 @@ namespace momentify_backend.Migrations
 
                     b.HasKey("SiteId");
 
-                    b.HasIndex("CoverPhotoId");
-
-                    b.HasIndex("MemoryPhotoId");
-
                     b.ToTable("OurStoryData");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Photo", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Photo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,7 +187,7 @@ namespace momentify_backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Site", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Site", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -210,7 +223,7 @@ namespace momentify_backend.Migrations
                     b.ToTable("Sites");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Template", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Template", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,7 +244,27 @@ namespace momentify_backend.Migrations
                     b.ToTable("Templates");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.User", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.TheBigAskData", b =>
+                {
+                    b.Property<int>("SiteId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PhotoMainPageId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PhotoYesPageId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SiteId");
+
+                    b.ToTable("TheBigAskData");
+                });
+
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -265,33 +298,33 @@ namespace momentify_backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.MemoriesData", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.MemoriesData", b =>
                 {
-                    b.HasOne("momentify_backend.Models.Site", null)
+                    b.HasOne("momentify_backend.Platform.Database.Models.Site", null)
                         .WithOne()
-                        .HasForeignKey("momentify_backend.Models.MemoriesData", "SiteId")
+                        .HasForeignKey("momentify_backend.Platform.Database.Models.MemoriesData", "SiteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Memory", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Memory", b =>
                 {
-                    b.HasOne("momentify_backend.Models.MemoriesData", null)
+                    b.HasOne("momentify_backend.Platform.Database.Models.MemoriesData", null)
                         .WithMany("Memories")
                         .HasForeignKey("MemoriesDataSiteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.MemoryPhoto", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.MemoryPhoto", b =>
                 {
-                    b.HasOne("momentify_backend.Models.Memory", null)
+                    b.HasOne("momentify_backend.Platform.Database.Models.Memory", null)
                         .WithMany("Photos")
                         .HasForeignKey("MemoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("momentify_backend.Models.Photo", "Photo")
+                    b.HasOne("momentify_backend.Platform.Database.Models.Photo", "Photo")
                         .WithMany()
                         .HasForeignKey("PhotoId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -300,64 +333,73 @@ namespace momentify_backend.Migrations
                     b.Navigation("Photo");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.OurStoryData", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.NoButtonText", b =>
                 {
-                    b.HasOne("momentify_backend.Models.Photo", "CoverPhoto")
-                        .WithMany()
-                        .HasForeignKey("CoverPhotoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("momentify_backend.Models.Photo", "MemoryPhoto")
-                        .WithMany()
-                        .HasForeignKey("MemoryPhotoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("momentify_backend.Models.Site", null)
-                        .WithOne()
-                        .HasForeignKey("momentify_backend.Models.OurStoryData", "SiteId")
+                    b.HasOne("momentify_backend.Platform.Database.Models.TheBigAskData", null)
+                        .WithMany("NoButtonTexts")
+                        .HasForeignKey("SiteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CoverPhoto");
-
-                    b.Navigation("MemoryPhoto");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Photo", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.OurStoryData", b =>
                 {
-                    b.HasOne("momentify_backend.Models.User", null)
+                    b.HasOne("momentify_backend.Platform.Database.Models.Site", null)
+                        .WithOne()
+                        .HasForeignKey("momentify_backend.Platform.Database.Models.OurStoryData", "SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Photo", b =>
+                {
+                    b.HasOne("momentify_backend.Platform.Database.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Site", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Site", b =>
                 {
-                    b.HasOne("momentify_backend.Models.Template", null)
+                    b.HasOne("momentify_backend.Platform.Database.Models.Template", null)
                         .WithMany()
                         .HasForeignKey("TemplateId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("momentify_backend.Models.User", null)
+                    b.HasOne("momentify_backend.Platform.Database.Models.User", null)
                         .WithMany("Sites")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.MemoriesData", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.TheBigAskData", b =>
+                {
+                    b.HasOne("momentify_backend.Platform.Database.Models.Site", null)
+                        .WithOne()
+                        .HasForeignKey("momentify_backend.Platform.Database.Models.TheBigAskData", "SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.MemoriesData", b =>
                 {
                     b.Navigation("Memories");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.Memory", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.Memory", b =>
                 {
                     b.Navigation("Photos");
                 });
 
-            modelBuilder.Entity("momentify_backend.Models.User", b =>
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.TheBigAskData", b =>
+                {
+                    b.Navigation("NoButtonTexts");
+                });
+
+            modelBuilder.Entity("momentify_backend.Platform.Database.Models.User", b =>
                 {
                     b.Navigation("Sites");
                 });

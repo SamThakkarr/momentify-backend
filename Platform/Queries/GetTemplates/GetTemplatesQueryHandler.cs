@@ -50,6 +50,7 @@ public class GetTemplatesQueryHandler : IGetTemplatesQueryHandler
         {
             TemplateType.OurStory => new OurStoryTemplate(),
             TemplateType.Memories => new MemoriesTemplate(),
+            TemplateType.TheBigAsk => new TheBigAskTemplate(),
             _ => null
         };
     }

@@ -4,6 +4,6 @@ public enum TemplateType
 {
     OurStory = 1,
     Memories = 2,
-    Forever = 3
+    TheBigAsk = 3
 }
 

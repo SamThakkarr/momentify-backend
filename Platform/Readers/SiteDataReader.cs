@@ -35,6 +35,11 @@ public class SiteDataReader : ISiteDataReader
                     .ThenInclude(x => x.Photo)
                     .FirstOrDefaultAsync(x => x.SiteId == siteId),
 
+            TemplateType.TheBigAsk =>
+                await _context.TheBigAskData
+                    .Include(x => x.NoButtonTexts.OrderBy(text => text.DisplayOrder))
+                    .FirstOrDefaultAsync(x => x.SiteId == siteId),
+
             _ => throw new InvalidOperationException(
                 $"Template data handling is not implemented for {templateType}.")
         };

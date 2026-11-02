@@ -15,6 +15,8 @@ public class AppDbContext : DbContext
     public DbSet<Site> Sites => Set<Site>();
     public DbSet<OurStoryData> OurStoryData => Set<OurStoryData>();
     public DbSet<MemoriesData> MemoriesData => Set<MemoriesData>();
+    public DbSet<TheBigAskData> TheBigAskData => Set<TheBigAskData>();
+    public DbSet<NoButtonText> NoButtonTexts => Set<NoButtonText>();
     public DbSet<Memory> Memories => Set<Memory>();
     public DbSet<MemoryPhoto> MemoryPhotos => Set<MemoryPhoto>();
     public DbSet<Photo> Photos => Set<Photo>();
@@ -67,6 +69,24 @@ public class AppDbContext : DbContext
             .HasOne<Site>()
             .WithOne()
             .HasForeignKey<MemoriesData>(x => x.SiteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TheBigAskData>()
+            .HasKey(x => x.SiteId);
+
+        modelBuilder.Entity<TheBigAskData>()
+            .HasOne<Site>()
+            .WithOne()
+            .HasForeignKey<TheBigAskData>(x => x.SiteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NoButtonText>()
+            .HasKey(x => new { x.SiteId, x.DisplayOrder });
+
+        modelBuilder.Entity<TheBigAskData>()
+            .HasMany(x => x.NoButtonTexts)
+            .WithOne()
+            .HasForeignKey(x => x.SiteId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Memory>()

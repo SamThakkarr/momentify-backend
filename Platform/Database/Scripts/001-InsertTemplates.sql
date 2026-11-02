@@ -3,7 +3,7 @@ MERGE INTO "Templates" AS target
         VALUES
             (1, 'Our Story', 'our-story'),
             (2, 'Memories', 'memories'),
-            (3, 'Forever', 'forever')
+            (3, 'TheBigAsk', 'the-big-ask')
     ) AS source ("Id", "Name", "IconId")
     ON target."Id" = source."Id"
 

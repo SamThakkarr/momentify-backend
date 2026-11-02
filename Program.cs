@@ -122,6 +122,7 @@ static void ConfigureApplicationServices(IServiceCollection services, IConfigura
 
     services.AddScoped<ITemplateDefinition, OurStoryTemplate>();
     services.AddScoped<ITemplateDefinition, MemoriesTemplate>();
+    services.AddScoped<ITemplateDefinition, TheBigAskTemplate>();
 
     services.AddScoped<IGetUserSitesQueryHandler, GetUserSitesQueryHandler>();
     services.AddScoped<IGetSiteBySlugQueryHandler, GetSiteBySlugQueryHandler>();

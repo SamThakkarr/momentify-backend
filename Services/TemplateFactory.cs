@@ -18,6 +18,9 @@ public class TemplateFactory : ITemplateFactory
             TemplateType.Memories =>
                 MemoriesData.Parse(data),
 
+            TemplateType.TheBigAsk =>
+                TheBigAskData.Parse(data),
+
             _ => throw new InvalidOperationException(
                 "Template data handling is not implemented.")
         };
