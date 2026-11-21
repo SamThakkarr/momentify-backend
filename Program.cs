@@ -39,6 +39,7 @@ if (builder.Environment.IsDevelopment())
 
 RegisterValidators(builder.Services);
 ConfigureSwagger(builder.Services);
+ConfigureCors(builder.Services, builder.Configuration);
 ConfigureAuthentication(builder.Services, builder.Configuration);
 ConfigureApplicationServices(builder.Services, builder.Configuration);
 
@@ -99,8 +100,32 @@ static void ConfigureSwagger(IServiceCollection services)
     });
 }
 
+static void ConfigureCors(IServiceCollection services, IConfiguration configuration)
+{
+    var origins = configuration["Cors:AllowedOrigins"]?
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        ?? [];
+
+    services.AddCors(options =>
+    {
+        options.AddPolicy("MomentifyCors", policy =>
+        {
+            if (origins.Length > 0)
+                policy.WithOrigins(origins);
+            else
+                policy.AllowAnyOrigin();
+
+            policy.AllowAnyHeader().AllowAnyMethod();
+        });
+    });
+}
+
 static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
 {
+    var jwtKey = configuration["Jwt:Key"];
+    if (string.IsNullOrWhiteSpace(jwtKey))
+        throw new InvalidOperationException("Set the Jwt:Key configuration value or the Jwt__Key environment variable.");
+
     services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -116,7 +141,7 @@ static void ConfigureAuthentication(IServiceCollection services, IConfiguration 
                 ValidAudience = configuration["Jwt:Audience"],
 
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
+                    Encoding.UTF8.GetBytes(jwtKey))
             };
         });
 
@@ -134,7 +159,17 @@ static void ConfigureApplicationServices(IServiceCollection services, IConfigura
     services.AddScoped<ITemplateService, TemplateService>();
     services.AddScoped<ISiteService, SiteService>();
     services.AddScoped<IPhotoService, PhotoService>();
-    services.AddScoped<IPhotoStorage, LocalPhotoStorage>();
+    services.AddScoped<IPhotoStorage>(provider =>
+    {
+        var configuration = provider.GetRequiredService<IConfiguration>();
+        var bucketName = Environment.GetEnvironmentVariable("GCS_BUCKET")
+            ?? Environment.GetEnvironmentVariable("PhotoStorage__Bucket")
+            ?? configuration["PhotoStorage:Bucket"];
+
+        return string.IsNullOrWhiteSpace(bucketName)
+            ? new LocalPhotoStorage(provider.GetRequiredService<IWebHostEnvironment>())
+            : new GcsPhotoStorage(configuration);
+    });
     services.AddScoped<ITemplateFactory, TemplateFactory>();
     services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -240,12 +275,14 @@ static void ConfigurePipeline(WebApplication app)
         app.UseSwaggerUI();
     }
 
-    app.UseHttpsRedirection();
+    app.UseCors("MomentifyCors");
     app.UseStaticFiles();
     app.UseAuthentication();
     app.UseAuthorization();
 
     app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+    app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
+        .AllowAnonymous();
     app.MapControllers();
 }
