@@ -20,13 +20,16 @@ public class SiteController : ControllerBase
     }
 
     [HttpGet("user")]
-    public async Task<IActionResult> GetUserSites()
+    public async Task<IActionResult> GetUserSites(
+        [FromQuery] int? siteId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
         var sites =
-            await _siteService.GetSitesByUserIdAsync(userId);
+            await _siteService.GetSitesByUserIdAsync(
+                userId,
+                siteId);
 
         return Ok(sites);
     }

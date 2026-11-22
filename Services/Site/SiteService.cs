@@ -14,7 +14,8 @@ public interface ISiteService
         int userId);
 
     Task<List<UserSiteDto>> GetSitesByUserIdAsync(
-        int userId);
+        int userId,
+        int? siteId = null);
 
     Task<UserSiteDto?> GetSiteBySlugAsync(
         string publicSlug);
@@ -55,9 +56,10 @@ public class SiteService : ISiteService
         await _createSiteHandler.HandleAsync(request, userId);
 
     public async Task<List<UserSiteDto>> GetSitesByUserIdAsync(
-        int userId)
+        int userId,
+        int? siteId = null)
     {
-        return await _getUserSitesHandler.HandleAsync(userId);
+        return await _getUserSitesHandler.HandleAsync(userId, siteId);
     }
 
     public async Task<UserSiteDto?> GetSiteBySlugAsync(

@@ -33,9 +33,19 @@ using momentify_backend.Services.Site;
 using momentify_backend.Services.Template;
 using momentify_backend.Services.User;
 
+var aspnetEnvironment =
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+if (string.Equals(
+    aspnetEnvironment,
+    "Development",
+    StringComparison.OrdinalIgnoreCase))
+{
+    LoadLocalEnvironmentFile(
+        Path.Combine(Directory.GetCurrentDirectory(), ".env.local"));
+}
+
 var builder = WebApplication.CreateBuilder(args);
-if (builder.Environment.IsDevelopment())
-    LoadLocalEnvironmentFile(Path.Combine(builder.Environment.ContentRootPath, ".env.local"));
 
 RegisterValidators(builder.Services);
 ConfigureSwagger(builder.Services);

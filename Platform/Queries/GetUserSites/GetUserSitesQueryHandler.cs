@@ -6,7 +6,9 @@ namespace momentify_backend.Platform.Queries.GetUserSites;
 
 public interface IGetUserSitesQueryHandler
 {
-    Task<List<UserSiteDto>> HandleAsync(int userId);
+    Task<List<UserSiteDto>> HandleAsync(
+        int userId,
+        int? siteId = null);
 }
 
 public class GetUserSitesQueryHandler : IGetUserSitesQueryHandler
@@ -25,9 +27,25 @@ public class GetUserSitesQueryHandler : IGetUserSitesQueryHandler
         _siteDataReader = siteDataReader;
     }
 
-    public async Task<List<UserSiteDto>> HandleAsync(int userId)
+    public async Task<List<UserSiteDto>> HandleAsync(
+        int userId,
+        int? siteId = null)
     {
-        var sites = await _siteReader.GetByUserIdAsync(userId);
+        List<Site> sites;
+
+        if (siteId.HasValue)
+        {
+            var site = await _siteReader.GetByIdAsync(siteId.Value);
+
+            if (site == null || site.UserId != userId)
+                throw new KeyNotFoundException("Site not found.");
+
+            sites = [site];
+        }
+        else
+        {
+            sites = await _siteReader.GetByUserIdAsync(userId);
+        }
 
         var result = new List<UserSiteDto>();
 
